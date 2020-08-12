@@ -105,6 +105,7 @@ class TasksController extends Controller
         // メッセージを更新
         $task->content = $request->content;
         $task->save();
+        return redirect('/');
 //
     }
 
