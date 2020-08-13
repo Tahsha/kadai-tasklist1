@@ -123,7 +123,7 @@ class TasksController extends Controller
     {
         $task = Task::findOrFail($id);
         // メッセージを削除
-        $taskmessage->delete();
+        $task->delete();
 
         // トップページへリダイレクトさせる
         return redirect('/');//
