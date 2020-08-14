@@ -14,6 +14,7 @@ class TasksController extends Controller
      */
     public function index()
     {
+         $tasks = Task::orderBy('id', 'desc')->paginate(25);
         $tasks = Task::all();
         return view('tasks.index', [
             'tasks' => $tasks,
@@ -45,7 +46,7 @@ class TasksController extends Controller
         
          // バリデーション
         $request->validate([
-            
+            'content' => 'required|max:255',
             'status' => 'required|max:10',   // 追加
         ]);
         $task = new Task;
@@ -103,6 +104,7 @@ class TasksController extends Controller
         $request->validate([
             
             'status' => 'required|max:10',   // 追加
+            'content' => 'required|max:255',
         ]);
         $task = Task::findOrFail($id);
         // メッセージを更新
