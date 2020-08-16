@@ -14,24 +14,20 @@ class TasksController extends Controller
      */
     public function index()
     {
-         $tasks = Task::orderBy('id', 'desc')->paginate(25);
+        $tasks = Task::orderBy('id', 'desc')->paginate(25);
         $tasks = Task::all();
         return view('tasks.index', [
             'tasks' => $tasks,
         ]);
     }
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    
     public function create()
     {
-       $tasks = new Task;
+       $task = new Task;
 
     
         return view('tasks.create', [
-            'task' => $tasks,
+            'task' => $task,
         ]); //
     }
 
