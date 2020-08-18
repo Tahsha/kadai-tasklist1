@@ -4,126 +4,103 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Task;
-
+use App\User;
 class TasksController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+       public function index()
     {
-        $tasks = Task::orderBy('id', 'desc')->paginate(25);
-        $tasks = Task::all();
-        return view('tasks.index', [
-            'tasks' => $tasks,
-        ]);
-    }
-    
-    public function create()
-    {
-       $task = new Task;
+        $data = [];
+        if (\Auth::check()) { // 認証済みの場合
+            // 認証済みユーザを取得
+            $user = \Auth::user();
+            // ユーザの投稿の一覧を作成日時の降順で取得
+            $tasks = $user->tasks()->orderBy('id', 'desc')->paginate(10);
+
+            $data = [
+                'user' => $user,
+                'tasks' => $tasks,  
+                // 'status' => $status,
+            ];
+        }
+
+        // Welcomeビューでそれらを表示
+        return view('welcome', $data);
+    } 
 
     
-        return view('tasks.create', [
-            'task' => $task,
-        ]); //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+        public function store(Request $request)
     {
-        
-         // バリデーション
+        // バリデーション
         $request->validate([
             'content' => 'required|max:255',
-            'status' => 'required|max:10',   // 追加
+            'status' => 'required|max:10',
         ]);
-        $task = new Task;
-        $task->content = $request->content;
-        $task->status = $request->status;
-        $task->save();
 
-        // トップページへリダイレクトさせる
-        return redirect('/');//
+        // 認証済みユーザ（閲覧者）の投稿として作成（リクエストされた値をもとに作成）
+        $request->user()->tasks()->create([
+            'content' => $request->content,
+            'status' => $request->status,
+            
+        ]);
+
+        return redirect('/');
+   
     }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    
+       public function create()
     {
-        $task = Task::findOrFail($id);
+        $task = new Task;
 
-        // メッセージ詳細ビューでそれを表示
-        return view('tasks.show', [
+        // メッセージ作成ビューを表示
+        return view('tasks.create', [
             'task' => $task,
         ]);
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
+    
+        public function show($id)
     {
+   
+        $task = Task::findOrFail($id);
+        // $tasks = Task::findOrFail($id);
+
+     
+        // $tasks = Task->orderBy('id', 'desc')->paginate(10);
+
+        // ユーザ詳細ビューでそれらを表示
+        return view('tasks.show' ,[
+            'task'=>$task,]);
+    }
+        public function edit($id)
+    {
+        // idの値でメッセージを検索して取得
         $task = Task::findOrFail($id);
 
         // メッセージ編集ビューでそれを表示
         return view('tasks.edit', [
             'task' => $task,
-        ]);//
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        
-        // バリデーション
-        $request->validate([
-            
-            'status' => 'required|max:10',   // 追加
-            'content' => 'required|max:255',
         ]);
+    }
+      public function update(Request $request, $id)
+    {
+        // idの値でメッセージを検索して取得
         $task = Task::findOrFail($id);
         // メッセージを更新
         $task->content = $request->content;
-        $task->status = $request->status; 
+        $task ->status =$request ->status;
         $task->save();
-        return redirect('/');
-//
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+        // トップページへリダイレクトさせる
+        return redirect('/');
+    }
+    
+       public function destroy($id)
     {
+        // idの値でメッセージを検索して取得
         $task = Task::findOrFail($id);
         // メッセージを削除
         $task->delete();
 
         // トップページへリダイレクトさせる
-        return redirect('/');//
+        return redirect('/');
     }
 }
