@@ -60,16 +60,22 @@ class TasksController extends Controller
         public function show($id)
     {
    
+         
         $task = Task::findOrFail($id);
         // $tasks = Task::findOrFail($id);
 
-     
+        if (\Auth::id() === $task->user_id) {  
         // $tasks = Task->orderBy('id', 'desc')->paginate(10);
 
         // ユーザ詳細ビューでそれらを表示
         return view('tasks.show' ,[
             'task'=>$task,]);
+       }
+            
+        return redirect('/');
     }
+        
+          
         public function edit($id)
     {
         // idの値でメッセージを検索して取得
@@ -84,21 +90,26 @@ class TasksController extends Controller
     {
         // idの値でメッセージを検索して取得
         $task = Task::findOrFail($id);
-        // メッセージを更新
-        $task->content = $request->content;
-        $task ->status =$request ->status;
-        $task->save();
-
+        if (\Auth::id() === $task->user_id) {  
+         
+            $task->content = $request->content;
+            $task ->status =$request ->status;
+             $task->save();
+        }
         // トップページへリダイレクトさせる
-        return redirect('/');
+        return redirect('/');// $tasks = Task->orderBy('id', 'desc')->paginate(10);
     }
-    
+        // ユーザ詳細ビューでそれらを表示
+        
+ 
        public function destroy($id)
     {
         // idの値でメッセージを検索して取得
         $task = Task::findOrFail($id);
         // メッセージを削除
-        $task->delete();
+         if (\Auth::id() === $task->user_id) {  
+              $task->delete();
+        }
 
         // トップページへリダイレクトさせる
         return redirect('/');
