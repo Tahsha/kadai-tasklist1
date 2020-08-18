@@ -24,7 +24,7 @@ class TasksController extends Controller
         }
 
         // Welcomeビューでそれらを表示
-        return view('welcome', $data);
+         return view('welcome', $data);
     } 
 
     
@@ -81,10 +81,14 @@ class TasksController extends Controller
         // idの値でメッセージを検索して取得
         $task = Task::findOrFail($id);
 
-        // メッセージ編集ビューでそれを表示
-        return view('tasks.edit', [
+        if (\Auth::id() === $task->user_id) {  
+         
+          return view('tasks.edit', [
+            'task' => $task,
             'task' => $task,
         ]);
+        }
+        return redirect('/');
     }
       public function update(Request $request, $id)
     {
@@ -101,17 +105,19 @@ class TasksController extends Controller
     }
         // ユーザ詳細ビューでそれらを表示
         
- 
+   
+        
        public function destroy($id)
     {
         // idの値でメッセージを検索して取得
         $task = Task::findOrFail($id);
-        // メッセージを削除
-         if (\Auth::id() === $task->user_id) {  
-              $task->delete();
+        if (\Auth::id() === $task->user_id) {  
+         
+         $task->delete();
+            
         }
+        
 
-        // トップページへリダイレクトさせる
-        return redirect('/');
+         return redirect('/');
     }
 }
